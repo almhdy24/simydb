@@ -1,7 +1,6 @@
 
 # SimyDB - Lightweight SQLite3 Database Abstraction Layer
 
-![PHP Test](https://github.com/almhdy24/simydb/workflows/PHP%20Test/badge.svg)
 ![Packagist Version](https://img.shields.io/packagist/v/simy/db)
 ![PHP Version](https://img.shields.io/packagist/php-v/simy/db)
 ![License](https://img.shields.io/packagist/l/simy/db)
