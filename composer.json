@@ -1,36 +1,38 @@
 {
-    "name": "simy/db",
-    "description": "A lightweight, dependency-free PHP 8+ DB layer for SQLite3 with fluent query builder interface",
-    "type": "library",
-    "keywords": ["sqlite", "database", "orm", "query-builder", "fluent-interface", "php8"],
-    "homepage": "https://github.com/almhdy24/simydb",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Elmahdi Abdallh",
-            "email": "your-email@example.com",  # Update with your email
-            "homepage": "https://github.com/almhdy24",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php": "^8.1",
-        "ext-sqlite3": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "Simy\\DB\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Simy\\DB\\Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "test": "php test.php",
-        "test-unit": "phpunit tests/"
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+  "name": "simy/db",
+  "description": "A lightweight, dependency-free PHP 8+ DB layer for SQLite3 with fluent query builder interface",
+  "type": "library",
+  "keywords": ["sqlite",
+    "database",
+    "orm",
+    "query-builder",
+    "fluent-interface",
+    "php8"],
+  "homepage": "https://github.com/almhdy24/simydb",
+  "license": "MIT",
+  "authors": [{
+    "name": "Elmahdi Abdallh",
+    "homepage": "https://github.com/almhdy24",
+    "role": "Developer"
+  }],
+  "require": {
+    "php": "^8.1",
+    "ext-sqlite3": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Simy\\DB\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Simy\\DB\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "php test.php",
+    "test-unit": "phpunit tests/"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
