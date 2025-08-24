@@ -1,34 +1,36 @@
+
 # SimyDB - Lightweight SQLite3 Database Abstraction Layer
 
-A modern, dependency-free PHP 8.1+ database abstraction layer for SQLite3 with fluent query builder interface.
+![PHP Test](https://github.com/almhdy24/simydb/workflows/PHP%20Test/badge.svg)
+![Packagist Version](https://img.shields.io/packagist/v/simy/db)
+![PHP Version](https://img.shields.io/packagist/php-v/simy/db)
+![License](https://img.shields.io/packagist/l/simy/db)
 
-## Features
+A modern, dependency-free PHP 8.1+ database abstraction layer for SQLite3 with fluent query builder interface, created by Elmahdi Abdallh.
 
-- 🚀 PHP 8.1+ with strict typing and namespaces
-- 📦 Zero dependencies - completely self-contained
-- 🔧 Fluent query builder inspired by Laravel Eloquent
-- 🛡️ Prepared statements and parameter binding
-- ⚡ SQLite3 optimized performance
-- 🎯 Comprehensive error handling with DatabaseException
-- 🔄 Transaction support
-- 📊 Migration helper for schema management
-- 🧪 Unit-test friendly with in-memory database support
+## 📦 Installation
 
-## Installation
+Install via Composer:
 
 ```bash
 composer require simy/db
 ```
 
-Or clone this repository:
+Or clone the repository:
 
 ```bash
-git clone <your-repo-url>
+# Using SSH
+git clone git@github.com:almhdy24/simydb.git
 cd simydb
+
+# Using HTTPS
+git clone https://github.com/almhdy24/simydb.git
+cd simydb
+
 composer install
 ```
 
-Quick Start
+🚀 Quick Start
 
 ```php
 <?php
@@ -42,7 +44,16 @@ try {
     // Create in-memory database
     $db = new Database('sqlite::memory:');
     
-    // Create table
+    // Create table using migration helper
+    $migration = new MigrationHelper($db);
+    $migration->createTable('users', [
+        'id' => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        'name' => 'TEXT NOT NULL',
+        'email' => 'TEXT UNIQUE NOT NULL',
+        'created_at' => 'DATETIME DEFAULT CURRENT_TIMESTAMP'
+    ]);
+    
+    // Insert data
     $db->table('users')->insert([
         'name' => 'John Doe',
         'email' => 'john@example.com'
@@ -57,32 +68,53 @@ try {
 }
 ```
 
-Usage Examples
+✨ Features
+
+· 🚀 PHP 8.1+ with strict typing and namespaces
+· 📦 Zero dependencies - completely self-contained
+· 🔧 Fluent query builder inspired by Laravel Eloquent
+· 🛡️ Prepared statements and parameter binding for security
+· ⚡ SQLite3 optimized performance
+· 🎯 Comprehensive error handling with DatabaseException
+· 🔄 Full transaction support (begin, commit, rollback)
+· 📊 Migration helper for schema management
+· 🧪 Unit-test friendly with in-memory database support
+· 📝 PSR-4 autoloading and clean code conventions
+
+📚 Usage Examples
 
 Basic CRUD Operations
 
 ```php
-// Insert
+// Insert records
 $db->table('users')->insert([
     'name' => 'Jane Smith',
     'email' => 'jane@example.com'
 ]);
 
-// Select
+// Select all records
 $users = $db->table('users')->get();
-$user = $db->table('users')->where('id', 1)->first();
 
-// Update
-$db->table('users')->update(['name' => 'John Updated'])->where('id', 1);
+// Select with conditions
+$user = $db->table('users')
+    ->where('email', 'john@example.com')
+    ->first();
 
-// Delete
-$db->table('users')->delete()->where('id', 5);
+// Update records
+$db->table('users')
+    ->update(['name' => 'John Updated'])
+    ->where('id', 1);
+
+// Delete records
+$db->table('users')
+    ->delete()
+    ->where('id', 5);
 ```
 
 Complex Queries
 
 ```php
-// Where clauses
+// Multiple where conditions
 $users = $db->table('users')
     ->where('age', '>', 18)
     ->orWhere('status', 'active')
@@ -90,13 +122,19 @@ $users = $db->table('users')
     ->limit(10)
     ->get();
 
-// Where IN
+// Where IN clause
 $users = $db->table('users')
     ->whereIn('id', [1, 2, 3, 5, 8])
     ->get();
 
 // Count records
 $count = $db->table('users')->where('active', 1)->count();
+
+// Return as objects
+$users = $db->table('users')->get(true);
+foreach ($users as $user) {
+    echo $user->name . "\n";
+}
 ```
 
 Transactions
@@ -105,8 +143,8 @@ Transactions
 $db->beginTransaction();
 
 try {
-    $db->table('users')->insert(['name' => 'User 1']);
-    $db->table('profiles')->insert(['user_id' => $db->lastInsertId()]);
+    $db->table('users')->insert(['name' => 'User 1', 'email' => 'user1@example.com']);
+    $db->table('profiles')->insert(['user_id' => $db->lastInsertId(), 'bio' => 'Test bio']);
     
     $db->commit();
     echo "Transaction successful!";
@@ -120,15 +158,18 @@ Error Handling
 
 ```php
 try {
-    $db->table('nonexistent')->get();
+    $db->table('nonexistent_table')->get();
 } catch (DatabaseException $e) {
     echo "Error: " . $e->getMessage();
     echo "SQL: " . $e->getSql();
     echo "Params: " . json_encode($e->getParams());
+    
+    // Log for debugging
+    error_log("Database error: " . $e->getMessage());
 }
 ```
 
-Migrations
+Schema Migrations
 
 ```php
 use Simy\DB\MigrationHelper;
@@ -136,11 +177,13 @@ use Simy\DB\MigrationHelper;
 $migration = new MigrationHelper($db);
 
 // Create table
-$migration->createTable('users', [
+$migration->createTable('posts', [
     'id' => 'INTEGER PRIMARY KEY AUTOINCREMENT',
-    'name' => 'TEXT NOT NULL',
-    'email' => 'TEXT UNIQUE NOT NULL',
-    'created_at' => 'DATETIME DEFAULT CURRENT_TIMESTAMP'
+    'title' => 'TEXT NOT NULL',
+    'content' => 'TEXT',
+    'user_id' => 'INTEGER',
+    'created_at' => 'DATETIME DEFAULT CURRENT_TIMESTAMP',
+    'FOREIGN KEY (user_id) REFERENCES users(id)'
 ]);
 
 // Add column
@@ -150,9 +193,13 @@ $migration->addColumn('users', 'age', 'INTEGER DEFAULT 0');
 if ($migration->tableExists('users')) {
     echo "Users table exists!";
 }
+
+if ($migration->columnExists('users', 'email')) {
+    echo "Email column exists!";
+}
 ```
 
-API Reference
+🏗️ API Reference
 
 Database Class
 
@@ -181,22 +228,58 @@ QueryBuilder Class
 · delete(): self - Delete records
 · count(): int - Count records
 
-Testing
+🧪 Testing
 
 Run the test suite:
 
 ```bash
+# Run basic tests
+composer test
+
+# Or run directly
 php test.php
 ```
 
-License
+📊 Package Statistics
 
-MIT License
+· Packagist: simy/db
+· GitHub: almhdy24/simydb
+· Downloads: https://img.shields.io/packagist/dt/simy/db
+· License: MIT
 
-Contributing
+🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request 
+2. Create a feature branch: git checkout -b feature/new-feature
+3. Make your changes and add tests
+4. Commit your changes: git commit -am 'Add new feature'
+5. Push to the branch: git push origin feature/new-feature
+6. Submit a pull request
+
+📝 Changelog
+
+v1.0.0 (2025-08-24)
+
+· Initial release
+· Database connection management
+· Fluent query builder with CRUD operations
+· Transaction support
+· Migration helper for schema management
+· Comprehensive error handling
+· SQLite3 optimized implementation
+
+📄 License
+
+MIT License. See LICENSE file for details.
+
+👨‍💻 Author
+
+Elmahdi Abdallh (almhdy24)
+
+· GitHub: @almhdy24
+
+🙏 Acknowledgments
+
+· Inspired by Laravel Eloquent and Medoo
+· Built with PHP 8.1+ best practices
+· Dependency-free design for maximum compatibility 
